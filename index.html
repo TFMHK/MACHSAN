@@ -1,0 +1,1664 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ניהול תקלות וחישוב כשירות – MVP</title>
+  <style>
+    /* =====================================================================
+       Design Tokens & Base Styles (Mobile-First, High-Contrast Light UI)
+       ===================================================================== */
+    :root {
+      --bg: #f1f5f9;
+      --surface: #ffffff;
+      --subtle: #f8fafc;
+      --header: #0f172a;
+      --text: #0f172a;
+      --text-2: #475569;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --border-strong: #cbd5e1;
+
+      --blue: #2563eb;
+      --blue-hover: #1d4ed8;
+      --blue-soft: #eff6ff;
+
+      --green: #059669;
+      --green-bg: #ecfdf5;
+      --green-border: #a7f3d0;
+
+      --red: #dc2626;
+      --red-bg: #fef2f2;
+      --red-border: #fecaca;
+
+      --amber: #d97706;
+      --amber-bg: #fffbeb;
+      --amber-border: #fde68a;
+
+      --radius: 12px;
+      --radius-sm: 8px;
+      --shadow: 0 1px 3px rgba(15, 23, 42, 0.07);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Heebo', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+      font-size: 15px;
+      line-height: 1.45;
+    }
+
+    button, input, select, textarea {
+      font-family: inherit;
+      font-size: inherit;
+    }
+    button { cursor: pointer; }
+
+    /* =====================================================================
+       Header & Top Tab Switcher
+       ===================================================================== */
+    .topbar {
+      background: var(--header);
+      color: #fff;
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.16);
+    }
+
+    .topbar-inner {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 12px 14px 0;
+    }
+
+    .topbar-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #10b981;
+      flex-shrink: 0;
+    }
+    .dot.down {
+      background: #ef4444;
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.35);
+    }
+
+    .btn-reset {
+      background: rgba(255, 255, 255, 0.1);
+      color: #e2e8f0;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: var(--radius-sm);
+      padding: 5px 10px;
+      font-size: 12.5px;
+      font-weight: 600;
+    }
+    .btn-reset:hover { background: rgba(255, 255, 255, 0.2); }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+
+    .tab-btn {
+      background: transparent;
+      color: #94a3b8;
+      border: none;
+      border-bottom: 3px solid transparent;
+      padding: 9px 6px;
+      font-size: 14px;
+      font-weight: 700;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .tab-btn.active {
+      color: #ffffff;
+      border-bottom-color: #38bdf8;
+    }
+
+    /* =====================================================================
+       Main Container & Cards
+       ===================================================================== */
+    .container {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 14px 12px 40px;
+    }
+
+    .view { display: none; }
+    .view.active { display: block; }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+      margin-bottom: 12px;
+      box-shadow: var(--shadow);
+    }
+
+    .card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .card-title {
+      margin: 0;
+      font-size: 15.5px;
+      font-weight: 800;
+    }
+
+    .sub {
+      font-size: 12.5px;
+      color: var(--muted);
+    }
+
+    /* =====================================================================
+       Buttons, Inputs, Badges
+       ===================================================================== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      border-radius: var(--radius-sm);
+      padding: 9px 14px;
+      font-size: 14px;
+      font-weight: 700;
+      border: 1px solid transparent;
+      min-height: 40px;
+      transition: background 0.15s, opacity 0.15s;
+    }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn-sm { padding: 5px 10px; font-size: 12.5px; min-height: 32px; }
+    .btn-primary { background: var(--blue); color: #fff; }
+    .btn-primary:hover:not(:disabled) { background: var(--blue-hover); }
+    .btn-green { background: var(--green); color: #fff; }
+    .btn-green:hover:not(:disabled) { background: #047857; }
+    .btn-red { background: var(--red); color: #fff; }
+    .btn-outline { background: #fff; color: var(--text); border-color: var(--border-strong); }
+    .btn-outline:hover:not(:disabled) { background: var(--subtle); }
+    .btn-block { width: 100%; }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .badge-ok { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+    .badge-err { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
+    .badge-warn { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-border); }
+    .badge-neutral { background: #f1f5f9; color: var(--text-2); border: 1px solid var(--border); }
+
+    .input, textarea, select {
+      width: 100%;
+      padding: 9px 11px;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      background: #fff;
+      color: var(--text);
+      font-size: 14px;
+    }
+    .input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);
+    }
+    textarea {
+      min-height: 150px;
+      resize: vertical;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    /* =====================================================================
+       View 1: Import & Validation
+       ===================================================================== */
+    .file-drop {
+      display: block;
+      border: 2px dashed var(--border-strong);
+      border-radius: var(--radius);
+      padding: 13px;
+      text-align: center;
+      background: var(--subtle);
+      margin-bottom: 10px;
+      cursor: pointer;
+    }
+    .file-drop:hover { border-color: var(--blue); background: var(--blue-soft); }
+
+    .summary-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      background: var(--subtle);
+      border: 1px solid var(--border);
+      margin-bottom: 12px;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .alert-box {
+      border: 1px solid var(--red-border);
+      background: var(--red-bg);
+      border-radius: var(--radius);
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+    .alert-title {
+      color: var(--red);
+      font-weight: 800;
+      font-size: 14.5px;
+      margin: 0 0 8px;
+    }
+
+    .err-item {
+      background: #fff;
+      border: 1px solid var(--red-border);
+      border-right: 4px solid var(--red);
+      border-radius: var(--radius-sm);
+      padding: 10px;
+      margin-bottom: 8px;
+    }
+    .err-item:last-child { margin-bottom: 0; }
+
+    .err-reason {
+      color: var(--red);
+      font-weight: 700;
+      font-size: 13px;
+      margin-bottom: 5px;
+    }
+
+    .raw-line {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+      background: #f1f5f9;
+      padding: 6px 8px;
+      border-radius: 6px;
+      color: #334155;
+      word-break: break-word;
+      margin-bottom: 8px;
+    }
+
+    .edit-box {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 6px;
+    }
+    .edit-box input {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12.5px;
+    }
+
+    .valid-collapse summary {
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 13.5px;
+      color: var(--green);
+      padding: 6px 0;
+      user-select: none;
+    }
+
+    .valid-row {
+      border-top: 1px solid var(--border);
+      padding: 7px 0;
+      font-size: 13px;
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .warn-note {
+      background: var(--amber-bg);
+      border: 1px solid var(--amber-border);
+      color: #92400e;
+      padding: 8px 10px;
+      border-radius: var(--radius-sm);
+      font-size: 12.5px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    /* =====================================================================
+       View 2: Data Analysis Dashboard
+       ===================================================================== */
+    .hero {
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 12px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .hero.ok { background: linear-gradient(135deg, #059669, #047857); }
+    .hero.down { background: linear-gradient(135deg, #dc2626, #b91c1c); }
+    .hero-title { margin: 0 0 3px; font-size: 19px; font-weight: 800; }
+    .hero-sub { margin: 0; font-size: 13px; opacity: 0.92; }
+    .hero-pct {
+      font-size: 24px;
+      font-weight: 800;
+      background: rgba(255, 255, 255, 0.18);
+      padding: 7px 13px;
+      border-radius: 10px;
+      white-space: nowrap;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+    @media (min-width: 520px) {
+      .kpi-grid { grid-template-columns: repeat(4, 1fr); }
+    }
+    .kpi {
+      background: var(--subtle);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 8px;
+      text-align: center;
+    }
+    .kpi-label { font-size: 11.5px; color: var(--muted); font-weight: 600; margin-bottom: 3px; }
+    .kpi-val { font-size: 17px; font-weight: 800; }
+    .kpi-val.ok { color: var(--green); }
+    .kpi-val.warn { color: var(--amber); }
+    .kpi-val.err { color: var(--red); }
+
+    .period-select {
+      width: auto;
+      min-width: 165px;
+      padding: 5px 8px;
+      font-size: 12.5px;
+      font-weight: 600;
+    }
+
+    .fault-card {
+      border: 1px solid var(--border);
+      border-right: 4px solid var(--green);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      background: #fff;
+    }
+    .fault-card.is-open {
+      border-right-color: var(--red);
+      background: #fffafa;
+    }
+    .fault-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .fault-name { font-weight: 800; font-size: 14.5px; }
+    .fault-meta {
+      font-size: 12.5px;
+      color: var(--text-2);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px 12px;
+      margin-top: 4px;
+    }
+    .update-note {
+      margin-top: 7px;
+      padding: 6px 9px;
+      background: var(--subtle);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 12.5px;
+      color: var(--text-2);
+    }
+
+    /* Component Breakdown Grid */
+    .comp-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+    @media (min-width: 560px) {
+      .comp-grid { grid-template-columns: 1fr 1fr; }
+    }
+    .comp-box {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      background: var(--subtle);
+    }
+    .comp-box-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+      font-weight: 800;
+    }
+    .comp-stats {
+      font-size: 12.5px;
+      color: var(--text-2);
+      margin-bottom: 6px;
+    }
+    .code-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+    .chip {
+      background: #fff;
+      border: 1px solid var(--border-strong);
+      border-radius: 6px;
+      padding: 2px 7px;
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    /* SVG Chart */
+    .chart-wrap {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    /* Toast & Confirm Modal */
+    .toast {
+      position: fixed;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--header);
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: 10px;
+      font-size: 13.5px;
+      font-weight: 600;
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.25);
+      z-index: 100;
+      display: none;
+    }
+
+    .modal-bg {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 90;
+    }
+    .modal-bg.open { display: flex; }
+    .modal {
+      background: #fff;
+      width: 100%;
+      max-width: 390px;
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.25);
+    }
+    .modal h3 { margin: 0 0 8px; font-size: 16px; }
+    .modal p { margin: 0 0 14px; font-size: 14px; color: var(--text-2); }
+
+    .empty {
+      text-align: center;
+      padding: 24px 12px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+  <!-- =====================================================================
+       TOPBAR & 2-VIEW SWITCHER
+       ===================================================================== -->
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="topbar-row">
+        <div class="brand">
+          <span id="statusDot" class="dot"></span>
+          <span>ניהול תקלות וכשירות</span>
+        </div>
+        <button id="btnReset" class="btn-reset" type="button">אפס נתונים</button>
+      </div>
+      <nav class="tabs">
+        <button class="tab-btn active" data-view="import" type="button">1. ייבוא ובדיקה</button>
+        <button class="tab-btn" data-view="analysis" type="button">2. ניתוח נתונים</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- ===================================================================
+         VIEW 1: ייבוא מהוואטסאפ ובדיקת תקינות
+         =================================================================== -->
+    <section id="view-import" class="view active">
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <h2 class="card-title">ייבוא דיווחי WhatsApp</h2>
+            <div class="sub">פורמט: פתיחה / סגירה | רכיב | קוד (0–60) · או עדכון | רכיב | קוד | טקסט</div>
+          </div>
+          <button id="btnSample" class="btn btn-sm btn-outline" type="button">טען דוגמה לבדיקה</button>
+        </div>
+
+        <label class="file-drop" for="fileInput">
+          <div style="font-weight:700; color:var(--blue);">העלאת קובץ צ'אט מיוצא (.txt)</div>
+          <div class="sub">תומך בפורמט Android ו-iOS (כולל חותמות זמן)</div>
+          <input id="fileInput" type="file" accept=".txt,text/plain" class="hidden" />
+        </label>
+
+        <textarea id="rawInput" placeholder="הדבק כאן הודעות מ-WhatsApp, לדוגמה:&#10;[18/11/2026, 08:00:00] דני: פתיחה | עגורן 1 | 14&#10;[18/11/2026, 09:30:00] דני: עדכון | עגורן 1 | 14 | טכנאי בדרך&#10;[18/11/2026, 11:00:00] דני: סגירה | עגורן 1 | 14"></textarea>
+
+        <div class="btn-row" style="margin-top:10px;">
+          <button id="btnParse" class="btn btn-primary" style="flex:1;" type="button">בדוק תקינות הודעות</button>
+          <button id="btnClearInput" class="btn btn-outline" type="button">נקה</button>
+        </div>
+      </div>
+
+      <!-- Validation Results Area -->
+      <div id="validationCard" class="card hidden">
+        <div class="summary-bar">
+          <div>תוצאות בדיקה:</div>
+          <div style="display:flex; gap:6px; flex-wrap:wrap;">
+            <span id="badgeValid" class="badge badge-ok">0 תקינות</span>
+            <span id="badgeInvalid" class="badge badge-err">0 בעייתיות</span>
+            <span id="badgeSystem" class="badge badge-neutral hidden">0 מערכת</span>
+          </div>
+        </div>
+
+        <!-- Prominent Alert for Invalid Messages -->
+        <div id="invalidSection" class="alert-box hidden">
+          <h3 class="alert-title">הודעות לא תקינות הדורשות טיפול (עריכה או הסרה)</h3>
+          <div id="invalidList"></div>
+        </div>
+
+        <!-- Collapsible Valid Messages List -->
+        <details id="validDetails" class="valid-collapse">
+          <summary id="validSummary">הצג הודעות תקינות שפוענחו (0)</summary>
+          <div id="validList"></div>
+        </details>
+
+        <div id="excludeWarn" class="warn-note hidden" style="margin-top:10px;">
+          שים לב: קיימות הודעות לא תקינות. אם תמשיך עכשיו, ההודעות הבעייתיות לא ייכללו בחישוב הכשירות (רק ההודעות התקינות ינותחו).
+        </div>
+
+        <button id="btnConfirmAnalyze" class="btn btn-green btn-block" style="margin-top:10px;" type="button">
+          אשר והצג ניתוח נתונים
+        </button>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         VIEW 2: ניתוח נתונים
+         =================================================================== -->
+    <section id="view-analysis" class="view">
+      <div id="analysisEmpty" class="card">
+        <div class="empty">
+          <div style="font-weight:800; color:var(--text); margin-bottom:6px;">אין עדיין נתונים מאושרים לניתוח</div>
+          <div style="margin-bottom:14px;">ייבא הודעות WhatsApp או טען דוגמה במסך הייבוא כדי לצפות בניתוח הכשירות.</div>
+          <button id="btnGoImport" class="btn btn-primary" type="button">עבור לייבוא ובדיקה</button>
+        </div>
+      </div>
+
+      <div id="analysisContent" class="hidden">
+        <!-- 1. Current Binary Status -->
+        <div id="heroBanner" class="hero ok">
+          <div>
+            <h2 id="heroTitle" class="hero-title">המערכת כשירה</h2>
+            <p id="heroSub" class="hero-sub">אין תקלות פתוחות כרגע</p>
+          </div>
+          <div id="heroPct" class="hero-pct">100%</div>
+        </div>
+
+        <div id="openFaultsCard" class="card hidden">
+          <div class="card-head">
+            <h3 class="card-title">תקלות פתוחות כרגע</h3>
+            <span id="openCountBadge" class="badge badge-err">0 פתוחות</span>
+          </div>
+          <div id="openFaultsList"></div>
+        </div>
+
+        <!-- 2. Availability & Merged Downtime -->
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <h3 class="card-title">כשירות שבועית (רביעי 08:00 – רביעי 08:00)</h3>
+              <div id="weekSub" class="sub"></div>
+            </div>
+            <select id="weekSelect" class="period-select"></select>
+          </div>
+          <div id="weekKpis" class="kpi-grid"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <h3 class="card-title">כשירות חודשית (חודש קלנדרי)</h3>
+              <div id="monthSub" class="sub"></div>
+            </div>
+            <select id="monthSelect" class="period-select"></select>
+          </div>
+          <div id="monthKpis" class="kpi-grid"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <h3 class="card-title">כשירות שנתית (שנה קלנדרית)</h3>
+              <div id="yearSub" class="sub"></div>
+            </div>
+            <select id="yearSelect" class="period-select"></select>
+          </div>
+          <div id="yearKpis" class="kpi-grid"></div>
+        </div>
+
+        <!-- Weekly Trend SVG Chart -->
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <h3 class="card-title">מגמת כשירות שבועית</h3>
+              <div class="sub">איחוד זמני השבתה (תקלות מקבילות אינן נספרות פעמיים)</div>
+            </div>
+          </div>
+          <div id="trendChart" class="chart-wrap"></div>
+        </div>
+
+        <!-- 3. Component & Recurring Faults Breakdown -->
+        <div class="card">
+          <div class="card-head">
+            <h3 class="card-title">ניתוח לפי רכיב ותקלות חוזרות</h3>
+          </div>
+          <div id="compGrid" class="comp-grid"></div>
+        </div>
+
+        <!-- 4. Fault History -->
+        <div class="card">
+          <div class="card-head">
+            <h3 class="card-title">היסטוריית תקלות</h3>
+            <span id="historyBadge" class="badge badge-neutral">0 תקלות</span>
+          </div>
+          <div id="historyList"></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Toast -->
+  <div id="toast" class="toast"></div>
+
+  <!-- Confirm Reset Modal (No browser confirm()) -->
+  <div id="resetModal" class="modal-bg">
+    <div class="modal">
+      <h3>איפוס נתונים</h3>
+      <p>פעולה זו תנקה את כל ההודעות והניתוחים השמורים בדפדפן. להמשיך?</p>
+      <div class="btn-row" style="justify-content:flex-end;">
+        <button id="btnCancelReset" class="btn btn-sm btn-outline" type="button">ביטול</button>
+        <button id="btnDoReset" class="btn btn-sm btn-red" type="button">אפס הכל</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      /* ===================================================================
+         CONSTANTS & STATE
+         =================================================================== */
+      const STORAGE_KEY = 'fault_mvp_events_v1';
+      const COMPONENTS = ['עגורן 1', 'עגורן 2', 'מסועים', 'SAP', 'תקשורת'];
+      const EVENT_TYPES = ['פתיחה', 'סגירה', 'עדכון'];
+      const MS_HOUR = 3600 * 1000;
+      const MS_DAY = 24 * MS_HOUR;
+
+      const state = {
+        batchLines: [],       // { id, rawLine, status, reason, parsed, editing }
+        confirmedEvents: [],  // persisted valid events
+        instances: [],        // built from confirmedEvents
+        selectedWeekStart: null,
+        selectedMonthKey: null,
+        selectedYear: null
+      };
+
+      /* ===================================================================
+         UTILITIES
+         =================================================================== */
+      const $ = (id) => document.getElementById(id);
+      const pad2 = (n) => String(n).padStart(2, '0');
+
+      function cleanMarks(str) {
+        return String(str || '').replace(/[\u200e\u200f\u202a-\u202e\u2066-\u2069\ufeff]/g, '').trim();
+      }
+
+      function esc(str) {
+        return String(str || '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      }
+
+      function fmtDateTime(ts) {
+        if (!ts) return '—';
+        const d = new Date(ts);
+        return `${pad2(d.getDate())}/${pad2(d.getMonth() + 1)}/${d.getFullYear()} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+      }
+
+      function fmtShortDate(ts) {
+        const d = new Date(ts);
+        return `${pad2(d.getDate())}/${pad2(d.getMonth() + 1)}`;
+      }
+
+      function fmtDuration(ms) {
+        if (ms == null || ms < 0) return '—';
+        const mins = Math.round(ms / 60000);
+        const h = Math.floor(mins / 60);
+        const m = mins % 60;
+        if (h === 0) return `${m} דק'`;
+        if (m === 0) return `${h} שע'`;
+        return `${h} שע' ${m} דק'`;
+      }
+
+      let toastTimer = null;
+      function showToast(msg) {
+        const el = $('toast');
+        el.textContent = msg;
+        el.style.display = 'block';
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => { el.style.display = 'none'; }, 2800);
+      }
+
+      /* ===================================================================
+         PERSISTENCE (localStorage)
+         =================================================================== */
+      function loadPersisted() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (raw) {
+            const arr = JSON.parse(raw);
+            if (Array.isArray(arr)) {
+              state.confirmedEvents = arr;
+              state.instances = buildInstances(state.confirmedEvents);
+            }
+          }
+        } catch (e) {
+          console.warn('localStorage load error:', e);
+        }
+      }
+
+      function savePersisted() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state.confirmedEvents));
+        } catch (e) {
+          console.warn('localStorage save error:', e);
+        }
+      }
+
+      /* ===================================================================
+         WHATSAPP PARSER & CHRONOLOGICAL VALIDATOR
+         =================================================================== */
+      function isSystemLine(cleaned) {
+        const lower = cleaned.toLowerCase();
+        return (
+          cleaned.includes('מוצפנות מקצה לקצה') ||
+          lower.includes('end-to-end encrypted') ||
+          cleaned.includes('יצר/ה את הקבוצה') ||
+          cleaned.includes('הוסיף/ה אותך') ||
+          cleaned.includes('שינה/תה את נושא')
+        );
+      }
+
+      function parseWaDateTime(dateStr, timeStr) {
+        const dParts = dateStr.split(/[./-]/).map(Number);
+        if (dParts.length !== 3 || dParts.some(isNaN)) return null;
+        let [day, month, year] = dParts;
+        if (year < 100) year += 2000;
+        if (month < 1 || month > 12 || day < 1 || day > 31) return null;
+
+        let t = timeStr.trim().toUpperCase();
+        const isPM = t.endsWith('PM');
+        const isAM = t.endsWith('AM');
+        if (isPM || isAM) t = t.slice(0, -2).trim();
+
+        const tParts = t.split(':').map(Number);
+        if (tParts.length < 2 || tParts.length > 3 || tParts.some(isNaN)) return null;
+        let [hh, mm, ss = 0] = tParts;
+        if (isPM && hh < 12) hh += 12;
+        if (isAM && hh === 12) hh = 0;
+        if (hh < 0 || hh > 23 || mm < 0 || mm > 59 || ss < 0 || ss > 59) return null;
+
+        const dt = new Date(year, month - 1, day, hh, mm, ss, 0);
+        if (dt.getFullYear() !== year || dt.getMonth() !== month - 1 || dt.getDate() !== day) return null;
+        return dt.getTime();
+      }
+
+      function parseSingleLine(rawLine) {
+        const cleaned = cleanMarks(rawLine);
+        if (isSystemLine(cleaned)) {
+          return { status: 'system', reason: 'הודעת מערכת של WhatsApp', parsed: null };
+        }
+
+        const iosRe = /^\[(\d{1,2}[./-]\d{1,2}[./-]\d{2,4}),?\s+(\d{1,2}:\d{2}(?::\d{2})?(?:\s*[APap][Mm])?)\]\s*([^:]+):\s*(.*)$/;
+        const andRe = /^(\d{1,2}[./-]\d{1,2}[./-]\d{2,4}),?\s+(\d{1,2}:\d{2}(?::\d{2})?(?:\s*[APap][Mm])?)\s*[-–]\s*([^:]+):\s*(.*)$/;
+        const m = cleaned.match(iosRe) || cleaned.match(andRe);
+
+        if (!m) {
+          return { status: 'invalid', reason: 'חסרה חותמת זמן תקינה של WhatsApp או פורמט שורה לא מזוהה', parsed: null };
+        }
+
+        const [, dateStr, timeStr, sender, body] = m;
+        const ts = parseWaDateTime(dateStr, timeStr);
+        if (ts === null) {
+          return { status: 'invalid', reason: `חותמת זמן לא תקינה (${dateStr} ${timeStr})`, parsed: null };
+        }
+
+        const parts = body.split('|').map(p => p.trim());
+        if (parts.length < 3) {
+          return { status: 'invalid', reason: 'פורמט שגוי (נדרש: סוג | רכיב | קוד תקלה)', parsed: null };
+        }
+
+        const [type, comp, codeStr, ...rest] = parts;
+        if (!EVENT_TYPES.includes(type)) {
+          return { status: 'invalid', reason: `סוג הודעה לא מוכר ("${type}"). מותר: פתיחה / סגירה / עדכון`, parsed: null };
+        }
+        if (!COMPONENTS.includes(comp)) {
+          return { status: 'invalid', reason: `רכיב לא מוכר ("${comp}"). מותר: ${COMPONENTS.join(', ')}`, parsed: null };
+        }
+        if (!/^\d+$/.test(codeStr)) {
+          return { status: 'invalid', reason: `קוד תקלה לא מספרי ("${codeStr}"). נדרש מספר שלם 0–60`, parsed: null };
+        }
+        const code = parseInt(codeStr, 10);
+        if (code < 0 || code > 60) {
+          return { status: 'invalid', reason: `קוד תקלה ${code} מחוץ לטווח המותר (0–60)`, parsed: null };
+        }
+
+        const updateText = rest.join(' | ').trim();
+        if (type === 'עדכון' && !updateText) {
+          return { status: 'invalid', reason: 'הודעת עדכון חייבת לכלול טקסט לאחר קוד התקלה', parsed: null };
+        }
+
+        return {
+          status: 'candidate',
+          reason: '',
+          parsed: {
+            timestamp: ts,
+            sender: sender.trim(),
+            type,
+            component: comp,
+            code,
+            updateText: type === 'עדכון' ? updateText : '',
+            rawLine: cleaned
+          }
+        };
+      }
+
+      /**
+       * Parses and runs chronological & logical validation on state.batchLines.
+       */
+      function validateBatch() {
+        const candidates = [];
+        const seenExact = new Set();
+
+        state.batchLines.forEach((item, idx) => {
+          const res = parseSingleLine(item.rawLine);
+          item.status = res.status;
+          item.reason = res.reason;
+          item.parsed = res.parsed;
+
+          if (res.status === 'candidate') {
+            const sig = `${res.parsed.timestamp}||${res.parsed.type}|${res.parsed.component}|${res.parsed.code}|${res.parsed.updateText}`;
+            if (seenExact.has(sig)) {
+              item.status = 'invalid';
+              item.reason = 'הודעה כפולה זהה באותו זמן';
+            } else {
+              seenExact.add(sig);
+              candidates.push({ item, order: idx });
+            }
+          }
+        });
+
+        // Sort chronologically for stateful validation
+        candidates.sort((a, b) => a.item.parsed.timestamp - b.item.parsed.timestamp || a.order - b.order);
+
+        const openMap = new Map(); // `${component}::${code}` -> opened_at
+        for (const { item } of candidates) {
+          const p = item.parsed;
+          const key = `${p.component}::${p.code}`;
+
+          if (p.type === 'פתיחה') {
+            if (openMap.has(key)) {
+              item.status = 'invalid';
+              item.reason = `פתיחה כפולה: תקלה ${p.code} ב-${p.component} כבר פתוחה`;
+            } else {
+              openMap.set(key, p.timestamp);
+              item.status = 'valid';
+              item.reason = '';
+            }
+          } else if (p.type === 'סגירה') {
+            if (!openMap.has(key)) {
+              item.status = 'invalid';
+              item.reason = `סגירה לתקלה שאינה פתוחה (${p.component}, קוד ${p.code})`;
+            } else if (p.timestamp < openMap.get(key)) {
+              item.status = 'invalid';
+              item.reason = 'זמן הסגירה מוקדם מזמן פתיחת התקלה';
+            } else {
+              openMap.delete(key);
+              item.status = 'valid';
+              item.reason = '';
+            }
+          } else if (p.type === 'עדכון') {
+            if (!openMap.has(key)) {
+              item.status = 'invalid';
+              item.reason = `עדכון לתקלה שאינה פתוחה (${p.component}, קוד ${p.code})`;
+            } else {
+              item.status = 'valid';
+              item.reason = '';
+            }
+          }
+        }
+      }
+
+      /* ===================================================================
+         DOMAIN ENGINE: INSTANCES, INTERVAL MERGING & PERIOD SPLITTING
+         =================================================================== */
+      function buildInstances(events) {
+        const sorted = [...events].sort((a, b) => a.timestamp - b.timestamp);
+        const openMap = new Map();
+        const instances = [];
+
+        for (const ev of sorted) {
+          const key = `${ev.component}::${ev.code}`;
+          if (ev.type === 'פתיחה') {
+            if (!openMap.has(key)) {
+              const inst = {
+                component: ev.component,
+                code: ev.code,
+                openedAt: ev.timestamp,
+                closedAt: null,
+                status: 'open',
+                updates: []
+              };
+              openMap.set(key, inst);
+              instances.push(inst);
+            }
+          } else if (ev.type === 'עדכון') {
+            const inst = openMap.get(key);
+            if (inst) inst.updates.push({ timestamp: ev.timestamp, text: ev.updateText });
+          } else if (ev.type === 'סגירה') {
+            const inst = openMap.get(key);
+            if (inst && ev.timestamp >= inst.openedAt) {
+              inst.closedAt = ev.timestamp;
+              inst.status = 'closed';
+              openMap.delete(key);
+            }
+          }
+        }
+        return instances;
+      }
+
+      /**
+       * Merges overlapping downtime intervals clipped to [start, end].
+       */
+      function computeMergedDowntimeMs(instances, start, end) {
+        if (end <= start) return 0;
+        const intervals = [];
+        for (const inst of instances) {
+          const s = Math.max(inst.openedAt, start);
+          const e = Math.min(inst.closedAt !== null ? inst.closedAt : end, end);
+          if (e > s) intervals.push([s, e]);
+        }
+        if (!intervals.length) return 0;
+
+        intervals.sort((a, b) => a[0] - b[0]);
+        let total = 0;
+        let [curS, curE] = intervals[0];
+        for (let i = 1; i < intervals.length; i++) {
+          const [ns, ne] = intervals[i];
+          if (ns <= curE) curE = Math.max(curE, ne);
+          else {
+            total += (curE - curS);
+            curS = ns;
+            curE = ne;
+          }
+        }
+        total += (curE - curS);
+        return total;
+      }
+
+      function computePeriodMetrics(instances, start, end) {
+        const now = Date.now();
+        const isCurrent = now >= start && now < end;
+        const effectiveEnd = isCurrent ? now : end;
+        const durationMs = Math.max(1, effectiveEnd - start);
+        const downtimeMs = computeMergedDowntimeMs(instances, start, effectiveEnd);
+        const availPct = Math.max(0, Math.min(100, ((durationMs - downtimeMs) / durationMs) * 100));
+
+        const active = instances.filter(i => {
+          const iEnd = i.closedAt !== null ? i.closedAt : now;
+          return i.openedAt < effectiveEnd && iEnd > start;
+        });
+
+        const closed = active.filter(i => i.status === 'closed');
+        const mttrMs = closed.length
+          ? closed.reduce((acc, i) => acc + (i.closedAt - i.openedAt), 0) / closed.length
+          : null;
+
+        return {
+          start,
+          end,
+          effectiveEnd,
+          isCurrent,
+          totalHours: durationMs / MS_HOUR,
+          downtimeMs,
+          availPct,
+          faultCount: active.length,
+          mttrMs
+        };
+      }
+
+      /**
+       * Returns Wednesday 08:00 start timestamp for the reporting week containing ts.
+       */
+      function getWeekStartForTs(ts) {
+        const d = new Date(ts);
+        const daysSinceWed = (d.getDay() - 3 + 7) % 7;
+        const wed = new Date(d.getFullYear(), d.getMonth(), d.getDate() - daysSinceWed, 8, 0, 0, 0);
+        if (wed.getTime() > ts) wed.setDate(wed.getDate() - 7);
+        return wed.getTime();
+      }
+
+      function getAllDataWeeks(instances) {
+        const now = Date.now();
+        const curWeek = getWeekStartForTs(now);
+        const weekSet = new Set([curWeek]);
+        for (const inst of instances) {
+          let ws = getWeekStartForTs(inst.openedAt);
+          const endTs = inst.closedAt !== null ? inst.closedAt : now;
+          const endWs = getWeekStartForTs(endTs);
+          while (ws <= endWs) {
+            weekSet.add(ws);
+            ws += 7 * MS_DAY;
+          }
+        }
+        return [...weekSet].sort((a, b) => a - b); // ascending
+      }
+
+      function getAllDataMonths(instances) {
+        const now = Date.now();
+        const set = new Set();
+        const addKey = (ts) => {
+          const d = new Date(ts);
+          set.add(`${d.getFullYear()}-${pad2(d.getMonth() + 1)}`);
+        };
+        addKey(now);
+        for (const inst of instances) {
+          addKey(inst.openedAt);
+          addKey(inst.closedAt !== null ? inst.closedAt : now);
+        }
+        return [...set].sort(); // ascending YYYY-MM
+      }
+
+      function getAllDataYears(instances) {
+        const now = Date.now();
+        const set = new Set([new Date(now).getFullYear()]);
+        for (const inst of instances) {
+          set.add(new Date(inst.openedAt).getFullYear());
+          set.add(new Date(inst.closedAt !== null ? inst.closedAt : now).getFullYear());
+        }
+        return [...set].sort((a, b) => a - b);
+      }
+
+      /* ===================================================================
+         SAMPLE DATA GENERATOR (Relative to Current Time)
+         =================================================================== */
+      function generateSampleChat() {
+        const now = Date.now();
+        const curWed = getWeekStartForTs(now);
+
+        const line = (ts, sender, msg) => {
+          const d = new Date(ts);
+          const ds = `${pad2(d.getDate())}/${pad2(d.getMonth() + 1)}/${d.getFullYear()}`;
+          const tm = `${pad2(d.getHours())}:${pad2(d.getMinutes())}:00`;
+          return `[${ds}, ${tm}] ${sender}: ${msg}`;
+        };
+
+        // Previous week: overlapping faults (עגורן 1 08:00-11:00 + מסועים 09:00-14:00 -> 6h merged)
+        const prevFri = curWed - 5 * MS_DAY; // Friday 08:00
+        // Crossing Wednesday 08:00 boundary: 06:00 -> 11:00 (2h prev week, 3h current week)
+        const crossOpen = curWed - 2 * MS_HOUR;
+        const crossUpd = curWed - 30 * 60000;
+        const crossClose = curWed + 3 * MS_HOUR;
+
+        // Current open fault (2 hours ago, guaranteed after curWed if possible)
+        const openTs = Math.max(curWed + 3.5 * MS_HOUR, now - 2 * MS_HOUR);
+        const openUpdTs = Math.min(now - 5 * 60000, openTs + 35 * 60000);
+
+        return [
+          line(prevFri, 'דני', 'פתיחה | עגורן 1 | 14'),
+          line(prevFri + 1 * MS_HOUR, 'יוסי', 'פתיחה | מסועים | 7'),
+          line(prevFri + 1.5 * MS_HOUR, 'דני', 'עדכון | עגורן 1 | 14 | טכנאי בדרך לבדיקת חיישן'),
+          line(prevFri + 3 * MS_HOUR, 'דני', 'סגירה | עגורן 1 | 14'),
+          line(prevFri + 6 * MS_HOUR, 'יוסי', 'סגירה | מסועים | 7'),
+          // Recurring fault on עגורן 1 code 14
+          line(curWed - 2 * MS_DAY + 2 * MS_HOUR, 'דני', 'פתיחה | עגורן 1 | 14'),
+          line(curWed - 2 * MS_DAY + 4.5 * MS_HOUR, 'דני', 'סגירה | עגורן 1 | 14'),
+          // Cross-boundary fault (Wednesday 08:00)
+          line(crossOpen, 'רון', 'פתיחה | תקשורת | 5'),
+          line(crossUpd, 'רון', 'עדכון | תקשורת | 5 | אתחול מתג ראשי'),
+          line(crossClose, 'רון', 'סגירה | תקשורת | 5'),
+          // Open fault
+          line(openTs, 'דני', 'פתיחה | עגורן 1 | 14'),
+          line(openUpdTs, 'דני', 'עדכון | עגורן 1 | 14 | ממתינים לחלק חילוף'),
+          // 3 Invalid messages for testing inline edit / remove
+          line(prevFri + 7 * MS_HOUR, 'אבי', 'פתיחה | עגורן 2 | 99'),
+          line(prevFri + 7.5 * MS_HOUR, 'אבי', 'סגירה | SAP | 12'),
+          line(curWed + 4 * MS_HOUR, 'משה', 'פתיחה | מעלית 3 | 10')
+        ].join('\n');
+      }
+
+      /* ===================================================================
+         RENDERING: VIEW 1 (VALIDATION)
+         =================================================================== */
+      function renderValidation() {
+        const card = $('validationCard');
+        if (!state.batchLines.length) {
+          card.classList.add('hidden');
+          return;
+        }
+        card.classList.remove('hidden');
+
+        const valid = state.batchLines.filter(x => x.status === 'valid');
+        const invalid = state.batchLines.filter(x => x.status === 'invalid');
+        const sys = state.batchLines.filter(x => x.status === 'system');
+
+        $('badgeValid').textContent = `${valid.length} תקינות`;
+        $('badgeInvalid').textContent = `${invalid.length} בעייתיות`;
+        $('badgeSystem').textContent = `${sys.length} הודעות מערכת`;
+        $('badgeSystem').classList.toggle('hidden', sys.length === 0);
+
+        // Invalid section
+        const invSec = $('invalidSection');
+        if (invalid.length > 0) {
+          invSec.classList.remove('hidden');
+          $('invalidList').innerHTML = invalid.map(item => {
+            if (item.editing) {
+              return `
+                <div class="err-item">
+                  <div class="err-reason">${esc(item.reason)}</div>
+                  <div class="edit-box">
+                    <input type="text" id="editInp_${item.id}" value="${esc(item.rawLine)}" />
+                    <div class="btn-row">
+                      <button class="btn btn-sm btn-primary" data-save-edit="${item.id}" type="button">שמור ובדוק</button>
+                      <button class="btn btn-sm btn-outline" data-cancel-edit="${item.id}" type="button">ביטול</button>
+                    </div>
+                  </div>
+                </div>
+              `;
+            }
+            return `
+              <div class="err-item">
+                <div class="err-reason">${esc(item.reason)}</div>
+                <div class="raw-line">${esc(item.rawLine)}</div>
+                <div class="btn-row">
+                  <button class="btn btn-sm btn-outline" data-start-edit="${item.id}" type="button">ערוך</button>
+                  <button class="btn btn-sm btn-outline" style="color:var(--red); border-color:var(--red-border);" data-remove="${item.id}" type="button">הסר</button>
+                </div>
+              </div>
+            `;
+          }).join('');
+
+          // Bind inline edit & remove handlers
+          $('invalidList').querySelectorAll('[data-start-edit]').forEach(btn => {
+            btn.onclick = () => {
+              const it = state.batchLines.find(x => x.id === btn.dataset.startEdit);
+              if (it) { it.editing = true; renderValidation(); }
+            };
+          });
+          $('invalidList').querySelectorAll('[data-cancel-edit]').forEach(btn => {
+            btn.onclick = () => {
+              const it = state.batchLines.find(x => x.id === btn.dataset.cancelEdit);
+              if (it) { it.editing = false; renderValidation(); }
+            };
+          });
+          $('invalidList').querySelectorAll('[data-save-edit]').forEach(btn => {
+            btn.onclick = () => {
+              const id = btn.dataset.saveEdit;
+              const it = state.batchLines.find(x => x.id === id);
+              const inp = $('editInp_' + id);
+              if (it && inp) {
+                it.rawLine = inp.value;
+                it.editing = false;
+                validateBatch();
+                renderValidation();
+                showToast('ההודעה עודכנה ונבדקה מחדש');
+              }
+            };
+          });
+          $('invalidList').querySelectorAll('[data-remove]').forEach(btn => {
+            btn.onclick = () => {
+              state.batchLines = state.batchLines.filter(x => x.id !== btn.dataset.remove);
+              validateBatch();
+              renderValidation();
+              showToast('ההודעה הוסרה מהרשימה');
+            };
+          });
+        } else {
+          invSec.classList.add('hidden');
+        }
+
+        // Valid collapsible list
+        $('validSummary').textContent = `הצג הודעות תקינות שפוענחו (${valid.length})`;
+        $('validList').innerHTML = valid.length
+          ? valid.map(item => {
+              const p = item.parsed;
+              return `
+                <div class="valid-row">
+                  <span><strong>${esc(p.type)}</strong> | ${esc(p.component)} | קוד ${p.code}${p.updateText ? ` · "${esc(p.updateText)}"` : ''}</span>
+                  <span class="sub">${fmtDateTime(p.timestamp)}</span>
+                </div>
+              `;
+            }).join('')
+          : '<div class="sub" style="padding:6px 0;">אין הודעות תקינות עדיין.</div>';
+
+        $('excludeWarn').classList.toggle('hidden', invalid.length === 0 || valid.length === 0);
+        $('btnConfirmAnalyze').disabled = valid.length === 0;
+        $('btnConfirmAnalyze').textContent = valid.length > 0
+          ? `אשר והצג ניתוח נתונים (${valid.length} הודעות תקינות)`
+          : 'אין הודעות תקינות לניתוח';
+      }
+
+      /* ===================================================================
+         RENDERING: VIEW 2 (ANALYSIS DASHBOARD)
+         =================================================================== */
+      function renderHeaderDot() {
+        const hasOpen = state.instances.some(i => i.status === 'open');
+        $('statusDot').classList.toggle('down', hasOpen);
+      }
+
+      function renderKpiHtml(m) {
+        const cls = m.availPct >= 95 ? 'ok' : m.availPct >= 85 ? 'warn' : 'err';
+        return `
+          <div class="kpi">
+            <div class="kpi-label">אחוז כשירות</div>
+            <div class="kpi-val ${cls}">${m.availPct.toFixed(2)}%</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">השבתה מאוחדת</div>
+            <div class="kpi-val">${fmtDuration(m.downtimeMs)}</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">מספר תקלות</div>
+            <div class="kpi-val">${m.faultCount}</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">זמן תיקון ממוצע</div>
+            <div class="kpi-val" style="font-size:15px;">${m.mttrMs !== null ? fmtDuration(m.mttrMs) : '—'}</div>
+          </div>
+        `;
+      }
+
+      function renderAnalysis() {
+        renderHeaderDot();
+        const hasData = state.confirmedEvents.length > 0;
+        $('analysisEmpty').classList.toggle('hidden', hasData);
+        $('analysisContent').classList.toggle('hidden', !hasData);
+        if (!hasData) return;
+
+        const now = Date.now();
+        const openFaults = state.instances.filter(i => i.status === 'open').sort((a, b) => a.openedAt - b.openedAt);
+        const isDown = openFaults.length > 0;
+
+        // 1. Current Status Hero
+        $('heroBanner').className = 'hero ' + (isDown ? 'down' : 'ok');
+        $('heroTitle').textContent = isDown ? 'המערכת מושבתת' : 'המערכת כשירה';
+        $('heroSub').textContent = isDown
+          ? `קיימות ${openFaults.length} תקלות פתוחות פעילות`
+          : 'אין תקלות פתוחות באף אחד מחמשת הרכיבים';
+        $('heroPct').textContent = isDown ? '0%' : '100%';
+
+        // Open faults list
+        $('openFaultsCard').classList.toggle('hidden', !isDown);
+        if (isDown) {
+          $('openCountBadge').textContent = `${openFaults.length} פתוחות`;
+          $('openFaultsList').innerHTML = openFaults.map(inst => {
+            const lastUpd = inst.updates.length ? inst.updates[inst.updates.length - 1] : null;
+            return `
+              <div class="fault-card is-open">
+                <div class="fault-head">
+                  <div class="fault-name">${esc(inst.component)} · קוד תקלה ${inst.code}</div>
+                  <span class="badge badge-err">פתוחה</span>
+                </div>
+                <div class="fault-meta">
+                  <span>פתיחה: ${fmtDateTime(inst.openedAt)}</span>
+                  <span>משך פתוח: <strong>${fmtDuration(now - inst.openedAt)}</strong></span>
+                </div>
+                ${lastUpd ? `<div class="update-note"><strong>עדכון אחרון (${fmtDateTime(lastUpd.timestamp)}):</strong> ${esc(lastUpd.text)}</div>` : ''}
+              </div>
+            `;
+          }).join('');
+        }
+
+        // 2. Period Selectors & Cards
+        const weeks = getAllDataWeeks(state.instances);
+        if (!state.selectedWeekStart || !weeks.includes(state.selectedWeekStart)) {
+          state.selectedWeekStart = weeks[weeks.length - 1];
+        }
+        $('weekSelect').innerHTML = [...weeks].reverse().map(ws => {
+          const we = ws + 7 * MS_DAY;
+          const label = `${fmtShortDate(ws)} – ${fmtShortDate(we)}`;
+          return `<option value="${ws}" ${ws === state.selectedWeekStart ? 'selected' : ''}>${label}</option>`;
+        }).join('');
+
+        const wm = computePeriodMetrics(state.instances, state.selectedWeekStart, state.selectedWeekStart + 7 * MS_DAY);
+        $('weekSub').textContent = wm.isCurrent
+          ? `שבוע נוכחי עד עכשיו (${wm.totalHours.toFixed(1)} שע' שחלפו)`
+          : `שבוע דיווח מלא (168 שעות)`;
+        $('weekKpis').innerHTML = renderKpiHtml(wm);
+
+        // Monthly
+        const months = getAllDataMonths(state.instances);
+        if (!state.selectedMonthKey || !months.includes(state.selectedMonthKey)) {
+          state.selectedMonthKey = months[months.length - 1];
+        }
+        $('monthSelect').innerHTML = [...months].reverse().map(mk => {
+          const [y, m] = mk.split('-').map(Number);
+          const name = new Date(y, m - 1, 1).toLocaleDateString('he-IL', { month: 'long', year: 'numeric' });
+          return `<option value="${mk}" ${mk === state.selectedMonthKey ? 'selected' : ''}>${name}</option>`;
+        }).join('');
+
+        const [my, mm] = state.selectedMonthKey.split('-').map(Number);
+        const mStart = new Date(my, mm - 1, 1, 0, 0, 0, 0).getTime();
+        const mEnd = new Date(my, mm, 1, 0, 0, 0, 0).getTime();
+        const mMetrics = computePeriodMetrics(state.instances, mStart, mEnd);
+        $('monthSub').textContent = mMetrics.isCurrent
+          ? `חודש נוכחי עד עכשיו (${mMetrics.totalHours.toFixed(1)} שע' שחלפו)`
+          : `חודש מלא (${mMetrics.totalHours.toFixed(0)} שעות)`;
+        $('monthKpis').innerHTML = renderKpiHtml(mMetrics);
+
+        // Yearly
+        const years = getAllDataYears(state.instances);
+        if (!state.selectedYear || !years.includes(state.selectedYear)) {
+          state.selectedYear = years[years.length - 1];
+        }
+        $('yearSelect').innerHTML = [...years].reverse().map(y =>
+          `<option value="${y}" ${y === state.selectedYear ? 'selected' : ''}>שנת ${y}</option>`
+        ).join('');
+
+        const yStart = new Date(state.selectedYear, 0, 1, 0, 0, 0, 0).getTime();
+        const yEnd = new Date(state.selectedYear + 1, 0, 1, 0, 0, 0, 0).getTime();
+        const yMetrics = computePeriodMetrics(state.instances, yStart, yEnd);
+        $('yearSub').textContent = yMetrics.isCurrent
+          ? `שנה נוכחית עד עכשיו (${yMetrics.totalHours.toFixed(1)} שע' שחלפו)`
+          : `שנה מלאה (${yMetrics.totalHours.toFixed(0)} שעות)`;
+        $('yearKpis').innerHTML = renderKpiHtml(yMetrics);
+
+        // Weekly Trend SVG Chart
+        renderTrendChart(weeks);
+
+        // 3. Component & Recurring Faults Breakdown
+        $('compGrid').innerHTML = COMPONENTS.map(comp => {
+          const list = state.instances.filter(i => i.component === comp);
+          const openCnt = list.filter(i => i.status === 'open').length;
+          const earliest = list.length ? Math.min(...list.map(i => i.openedAt)) : now;
+          const downMs = computeMergedDowntimeMs(list, earliest, now);
+
+          const counts = new Map();
+          list.forEach(i => counts.set(i.code, (counts.get(i.code) || 0) + 1));
+          const topCodes = [...counts.entries()].sort((a, b) => b[1] - a[1]);
+
+          return `
+            <div class="comp-box">
+              <div class="comp-box-head">
+                <span>${esc(comp)}</span>
+                <span class="badge ${openCnt ? 'badge-err' : 'badge-ok'}">${openCnt ? `${openCnt} פתוחות` : 'תקין'}</span>
+              </div>
+              <div class="comp-stats">
+                תקלות: <strong>${list.length}</strong> · השבתה: <strong>${fmtDuration(downMs)}</strong>
+              </div>
+              <div class="code-chips">
+                ${topCodes.length
+                  ? topCodes.map(([code, cnt]) => `<span class="chip">קוד ${code} (${cnt} ${cnt === 1 ? 'פעם' : 'פעמים'})</span>`).join('')
+                  : '<span class="sub">ללא תקלות</span>'}
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        // 4. History List
+        const sortedInst = [...state.instances].sort((a, b) => b.openedAt - a.openedAt);
+        $('historyBadge').textContent = `${sortedInst.length} תקלות`;
+        $('historyList').innerHTML = sortedInst.map(inst => {
+          const isOpen = inst.status === 'open';
+          const dur = (isOpen ? now : inst.closedAt) - inst.openedAt;
+          return `
+            <div class="fault-card ${isOpen ? 'is-open' : ''}">
+              <div class="fault-head">
+                <div class="fault-name">${esc(inst.component)} · קוד תקלה ${inst.code}</div>
+                <span class="badge ${isOpen ? 'badge-err' : 'badge-ok'}">${isOpen ? 'פתוחה' : 'סגורה'}</span>
+              </div>
+              <div class="fault-meta">
+                <span>פתיחה: ${fmtDateTime(inst.openedAt)}</span>
+                <span>סגירה: ${isOpen ? 'פתוחה' : fmtDateTime(inst.closedAt)}</span>
+                <span>משך: <strong>${fmtDuration(dur)}</strong></span>
+              </div>
+              ${inst.updates.length ? `
+                <details style="margin-top:6px;">
+                  <summary class="sub" style="cursor:pointer; font-weight:700;">עדכונים (${inst.updates.length})</summary>
+                  ${inst.updates.map(u => `<div class="update-note"><strong>${fmtDateTime(u.timestamp)}:</strong> ${esc(u.text)}</div>`).join('')}
+                </details>
+              ` : ''}
+            </div>
+          `;
+        }).join('');
+      }
+
+      function renderTrendChart(weeks) {
+        const displayWeeks = weeks.slice(-8); // up to 8 most recent weeks in data
+        const data = displayWeeks.map(ws => {
+          const m = computePeriodMetrics(state.instances, ws, ws + 7 * MS_DAY);
+          return { label: fmtShortDate(ws), pct: m.availPct, down: fmtDuration(m.downtimeMs) };
+        });
+
+        const W = 560, H = 190, padL = 40, padR = 16, padT = 22, padB = 30;
+        const plotW = W - padL - padR, plotH = H - padT - padB;
+        const minV = Math.min(...data.map(d => d.pct));
+        const yMin = minV >= 80 ? Math.max(0, Math.floor((minV - 5) / 5) * 5) : 0;
+        const yRange = Math.max(1, 100 - yMin);
+        const yPos = (v) => padT + plotH - ((v - yMin) / yRange) * plotH;
+
+        let grid = '';
+        for (let i = 0; i <= 4; i++) {
+          const v = yMin + (yRange * i) / 4;
+          const y = yPos(v);
+          grid += `<line x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" stroke="#e2e8f0" stroke-dasharray="3,3" />
+                   <text x="${padL - 6}" y="${y + 4}" text-anchor="end" font-size="10.5" fill="#64748b">${Math.round(v)}%</text>`;
+        }
+
+        const slotW = plotW / Math.max(1, data.length);
+        const barW = Math.min(48, Math.max(18, slotW - 16));
+        const pts = [];
+        let bars = '';
+
+        data.forEach((d, idx) => {
+          const cx = padL + slotW * idx + slotW / 2;
+          const x = cx - barW / 2;
+          const y = yPos(d.pct);
+          const h = Math.max(2, (padT + plotH) - y);
+          const color = d.pct >= 95 ? '#10b981' : d.pct >= 85 ? '#f59e0b' : '#ef4444';
+          pts.push(`${cx},${y}`);
+          bars += `
+            <g>
+              <title>שבוע ${d.label} | כשירות: ${d.pct.toFixed(2)}% | השבתה: ${d.down}</title>
+              <rect x="${x}" y="${y}" width="${barW}" height="${h}" rx="5" fill="${color}" opacity="0.88" />
+              <text x="${cx}" y="${Math.max(12, y - 6)}" text-anchor="middle" font-size="10.5" font-weight="700" fill="#0f172a">${d.pct.toFixed(1)}%</text>
+              <text x="${cx}" y="${H - 10}" text-anchor="middle" font-size="11" fill="#475569">${d.label}</text>
+            </g>
+          `;
+        });
+
+        $('trendChart').innerHTML = `
+          <svg viewBox="0 0 ${W} ${H}" width="100%" style="min-width:300px; display:block; direction:ltr;">
+            ${grid}
+            ${pts.length > 1 ? `<polyline fill="none" stroke="#1e293b" stroke-width="2" stroke-opacity="0.3" points="${pts.join(' ')}" />` : ''}
+            ${bars}
+          </svg>
+        `;
+      }
+
+      /* ===================================================================
+         NAVIGATION & EVENT BINDINGS
+         =================================================================== */
+      function switchView(viewName) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.view === viewName));
+        document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === 'view-' + viewName));
+        if (viewName === 'analysis') renderAnalysis();
+        window.scrollTo({ top: 0, behavior: 'instant' });
+      }
+
+      function runParseFromTextarea() {
+        const text = $('rawInput').value;
+        const lines = text.split(/\r?\n/).filter(l => cleanMarks(l).length > 0);
+        if (!lines.length) {
+          showToast('יש להדביק טקסט או לבחור קובץ צ\'אט תחילה');
+          return;
+        }
+        state.batchLines = lines.map((l, i) => ({
+          id: 'ln_' + i + '_' + Math.random().toString(36).slice(2, 6),
+          rawLine: l,
+          status: 'invalid',
+          reason: '',
+          parsed: null,
+          editing: false
+        }));
+        validateBatch();
+        renderValidation();
+      }
+
+      function initEvents() {
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+          btn.onclick = () => switchView(btn.dataset.view);
+        });
+
+        $('btnGoImport').onclick = () => switchView('import');
+
+        $('btnSample').onclick = () => {
+          $('rawInput').value = generateSampleChat();
+          runParseFromTextarea();
+          showToast('נטענה דוגמה הכוללת תקלות חופפות ו-3 הודעות בעייתיות');
+        };
+
+        $('fileInput').onchange = (e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = () => {
+            $('rawInput').value = reader.result || '';
+            runParseFromTextarea();
+            showToast(`נטען קובץ: ${file.name}`);
+          };
+          reader.readAsText(file, 'UTF-8');
+          e.target.value = '';
+        };
+
+        $('btnParse').onclick = runParseFromTextarea;
+
+        $('btnClearInput').onclick = () => {
+          $('rawInput').value = '';
+          state.batchLines = [];
+          renderValidation();
+        };
+
+        $('btnConfirmAnalyze').onclick = () => {
+          const validEvents = state.batchLines
+            .filter(x => x.status === 'valid' && x.parsed)
+            .map(x => x.parsed);
+          if (!validEvents.length) return;
+
+          state.confirmedEvents = validEvents;
+          state.instances = buildInstances(validEvents);
+          state.selectedWeekStart = null;
+          state.selectedMonthKey = null;
+          state.selectedYear = null;
+          savePersisted();
+          switchView('analysis');
+          showToast(`אושרו ${validEvents.length} הודעות תקינות לניתוח`);
+        };
+
+        // Period selectors
+        $('weekSelect').onchange = (e) => { state.selectedWeekStart = Number(e.target.value); renderAnalysis(); };
+        $('monthSelect').onchange = (e) => { state.selectedMonthKey = e.target.value; renderAnalysis(); };
+        $('yearSelect').onchange = (e) => { state.selectedYear = Number(e.target.value); renderAnalysis(); };
+
+        // Reset modal
+        $('btnReset').onclick = () => $('resetModal').classList.add('open');
+        $('btnCancelReset').onclick = () => $('resetModal').classList.remove('open');
+        $('btnDoReset').onclick = () => {
+          localStorage.removeItem(STORAGE_KEY);
+          state.batchLines = [];
+          state.confirmedEvents = [];
+          state.instances = [];
+          $('rawInput').value = '';
+          renderValidation();
+          renderAnalysis();
+          $('resetModal').classList.remove('open');
+          switchView('import');
+          showToast('כל הנתונים אופסו');
+        };
+      }
+
+      /* ===================================================================
+         BOOT
+         =================================================================== */
+      loadPersisted();
+      initEvents();
+      renderHeaderDot();
+      if (state.confirmedEvents.length > 0) {
+        switchView('analysis');
+      }
+    })();
+  </script>
+</body>
+</html>
