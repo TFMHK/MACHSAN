@@ -46,7 +46,7 @@
       margin: 0;
       background: var(--bg);
       color: var(--text);
-      font-family: 'Heebo', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+      font-family: Arial, sans-serif;
       font-size: 15px;
       line-height: 1.45;
     }
@@ -113,6 +113,59 @@
       font-weight: 600;
     }
     .btn-reset:hover { background: rgba(255, 255, 255, 0.2); }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-info-circle {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: rgba(56, 189, 248, 0.18);
+      color: #e0f2fe;
+      border: 1px solid rgba(56, 189, 248, 0.5);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 14px;
+      line-height: 1;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .btn-info-circle:hover {
+      background: rgba(56, 189, 248, 0.32);
+    }
+
+    .btn-info-inline {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--blue-soft);
+      color: var(--blue);
+      border: 1px solid #bfdbfe;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 12.5px;
+      line-height: 1;
+      flex-shrink: 0;
+      transition: background 0.15s;
+    }
+    .btn-info-inline:hover {
+      background: #dbeafe;
+    }
+
+    .title-with-info {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
 
     .tabs {
       display: grid;
@@ -240,8 +293,8 @@
     textarea {
       min-height: 150px;
       resize: vertical;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      font-size: 13px;
+      font-family: Arial, sans-serif;
+      font-size: 13.5px;
       line-height: 1.55;
     }
 
@@ -307,14 +360,25 @@
     }
 
     .raw-line {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      font-size: 12px;
+      font-family: Arial, sans-serif;
+      font-size: 12.5px;
       background: #f1f5f9;
       padding: 6px 8px;
       border-radius: 6px;
       color: #334155;
       word-break: break-word;
       margin-bottom: 8px;
+    }
+
+    .edit-box {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 6px;
+    }
+    .edit-box input {
+      font-family: Arial, sans-serif;
+      font-size: 13px;
     }
 
     .edit-box {
@@ -440,14 +504,20 @@
       gap: 4px 12px;
       margin-top: 4px;
     }
-    .update-note {
-      margin-top: 7px;
-      padding: 6px 9px;
-      background: var(--subtle);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      font-size: 12.5px;
-      color: var(--text-2);
+
+    .filter-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .filter-row select {
+      width: auto;
+      min-width: 130px;
+      flex: 1;
+      padding: 7px 10px;
+      font-size: 13px;
+      font-weight: 600;
     }
 
     /* Component Breakdown Grid */
@@ -537,6 +607,124 @@
     .modal h3 { margin: 0 0 8px; font-size: 16px; }
     .modal p { margin: 0 0 14px; font-size: 14px; color: var(--text-2); }
 
+    /* Info Modal (Formats Guide) */
+    .modal-lg {
+      max-width: 520px;
+      max-height: 88vh;
+      overflow-y: auto;
+      padding: 18px 16px;
+    }
+    .modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding-bottom: 10px;
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .modal-head h3 {
+      margin: 0;
+      font-size: 16.5px;
+      font-weight: 800;
+    }
+    .modal-close {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--subtle);
+      color: var(--text-2);
+      font-size: 18px;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-close:hover { background: var(--border); color: var(--text); }
+
+    .info-section {
+      margin-bottom: 14px;
+    }
+    .info-section-title {
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--text);
+      margin: 0 0 7px;
+    }
+    .format-card {
+      background: var(--subtle);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 9px 10px;
+      margin-bottom: 7px;
+    }
+    .format-card:last-child { margin-bottom: 0; }
+    .format-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+    .format-pattern {
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--text);
+    }
+    .format-example {
+      font-family: Arial, sans-serif;
+      font-size: 13px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 5px 8px;
+      color: var(--blue-hover);
+      word-break: break-word;
+    }
+    .btn-copy-xs {
+      background: #fff;
+      color: var(--blue);
+      border: 1px solid #bfdbfe;
+      border-radius: 6px;
+      padding: 3px 8px;
+      font-size: 11.5px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .btn-copy-xs:hover { background: var(--blue-soft); }
+
+    .comp-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .comp-pill {
+      background: var(--blue-soft);
+      color: var(--blue-hover);
+      border: 1px solid #bfdbfe;
+      border-radius: 999px;
+      padding: 3px 10px;
+      font-size: 12.5px;
+      font-weight: 700;
+    }
+    .info-list {
+      margin: 0;
+      padding-right: 18px;
+      font-size: 13px;
+      color: var(--text-2);
+    }
+    .info-list li { margin-bottom: 5px; }
+    .info-tip {
+      background: var(--amber-bg);
+      border: 1px solid var(--amber-border);
+      color: #92400e;
+      border-radius: var(--radius-sm);
+      padding: 8px 10px;
+      font-size: 12.5px;
+      margin-top: 7px;
+    }
+
     .empty {
       text-align: center;
       padding: 24px 12px;
@@ -557,13 +745,16 @@
       <div class="topbar-row">
         <div class="brand">
           <span id="statusDot" class="dot"></span>
-          <span>ניהול תקלות וכשירות</span>
+          <span>כשירות מערכת — MVP</span>
         </div>
-        <button id="btnReset" class="btn-reset" type="button">אפס נתונים</button>
+        <div class="topbar-actions">
+          <button id="btnInfoHeader" class="btn-info-circle" type="button" title="פורמטים לשליחת הודעות" aria-label="מידע על פורמטים לשליחת הודעות">i</button>
+          <button id="btnReset" class="btn-reset" type="button">אפס נתונים</button>
+        </div>
       </div>
       <nav class="tabs">
-        <button class="tab-btn active" data-view="import" type="button">1. ייבוא ובדיקה</button>
-        <button class="tab-btn" data-view="analysis" type="button">2. ניתוח נתונים</button>
+        <button class="tab-btn active" data-view="import" type="button">ייבוא ובדיקה</button>
+        <button class="tab-btn" data-view="analysis" type="button">ניתוח נתונים</button>
       </nav>
     </div>
   </header>
@@ -577,22 +768,25 @@
       <div class="card">
         <div class="card-head">
           <div>
-            <h2 class="card-title">ייבוא דיווחי WhatsApp</h2>
-            <div class="sub">פורמט: פתיחה / סגירה | רכיב | קוד (0–60) · או עדכון | רכיב | קוד | טקסט</div>
+            <div class="title-with-info">
+              <h2 class="card-title">ייבוא דיווחי WhatsApp</h2>
+              <button id="btnInfoImport" class="btn-info-inline" type="button" title="הסבר על פורמטים לשליחת הודעות" aria-label="הסבר על פורמטים לשליחת הודעות">i</button>
+            </div>
+            <div class="sub">פורמט: פתיחה | רכיב | קוד (0–60) · סגירה | רכיב | קוד (0–60)</div>
           </div>
           <button id="btnSample" class="btn btn-sm btn-outline" type="button">טען דוגמה לבדיקה</button>
         </div>
 
         <label class="file-drop" for="fileInput">
           <div style="font-weight:700; color:var(--blue);">העלאת קובץ צ'אט מיוצא (.txt)</div>
-          <div class="sub">תומך בפורמט Android ו-iOS (כולל חותמות זמן)</div>
+          <div class="sub">תומך בפורמט Android ו-iOS (כולל חותמות זמן). הודעות צ'אט רגילות מסוננות אוטומטית.</div>
           <input id="fileInput" type="file" accept=".txt,text/plain" class="hidden" />
         </label>
 
-        <textarea id="rawInput" placeholder="הדבק כאן הודעות מ-WhatsApp, לדוגמה:&#10;[18/11/2026, 08:00:00] דני: פתיחה | עגורן 1 | 14&#10;[18/11/2026, 09:30:00] דני: עדכון | עגורן 1 | 14 | טכנאי בדרך&#10;[18/11/2026, 11:00:00] דני: סגירה | עגורן 1 | 14"></textarea>
+        <textarea id="rawInput" placeholder="הדבק כאן הודעות מ-WhatsApp, לדוגמה:&#10;[18/11/2026, 08:00:00] דני: פתיחה | עגורן 1 | 14&#10;[18/11/2026, 09:30:00] דני: טכנאי בדרך לעגורן 1&#10;[18/11/2026, 11:00:00] דני: סגירה | עגורן 1 | 14"></textarea>
 
         <div class="btn-row" style="margin-top:10px;">
-          <button id="btnParse" class="btn btn-primary" style="flex:1;" type="button">בדוק תקינות הודעות</button>
+          <button id="btnParse" class="btn btn-primary" style="flex:1;" type="button">בדוק הודעות</button>
           <button id="btnClearInput" class="btn btn-outline" type="button">נקה</button>
         </div>
       </div>
@@ -602,15 +796,19 @@
         <div class="summary-bar">
           <div>תוצאות בדיקה:</div>
           <div style="display:flex; gap:6px; flex-wrap:wrap;">
-            <span id="badgeValid" class="badge badge-ok">0 תקינות</span>
-            <span id="badgeInvalid" class="badge badge-err">0 בעייתיות</span>
-            <span id="badgeSystem" class="badge badge-neutral hidden">0 מערכת</span>
+            <span id="badgeValid" class="badge badge-ok">0 תקינות לקליטה</span>
+            <span id="badgeInvalid" class="badge badge-err">0 הודעות לא תקינות</span>
+            <span id="badgeIgnored" class="badge badge-neutral hidden">0 הודעות צ'אט שהושמטו</span>
+            <span id="badgeDup" class="badge badge-warn hidden">0 כפילויות</span>
           </div>
         </div>
 
         <!-- Prominent Alert for Invalid Messages -->
         <div id="invalidSection" class="alert-box hidden">
-          <h3 class="alert-title">הודעות לא תקינות הדורשות טיפול (עריכה או הסרה)</h3>
+          <div class="card-head" style="margin-bottom:8px;">
+            <h3 class="alert-title" style="margin:0;">הודעות לא תקינות הדורשות טיפול (עריכה או הסרה)</h3>
+            <button id="btnRemoveAllInvalid" class="btn btn-sm btn-outline" style="color:var(--red); border-color:var(--red-border);" type="button">הסר את כל השגויות</button>
+          </div>
           <div id="invalidList"></div>
         </div>
 
@@ -620,12 +818,12 @@
           <div id="validList"></div>
         </details>
 
-        <div id="excludeWarn" class="warn-note hidden" style="margin-top:10px;">
-          שים לב: קיימות הודעות לא תקינות. אם תמשיך עכשיו, ההודעות הבעייתיות לא ייכללו בחישוב הכשירות (רק ההודעות התקינות ינותחו).
+        <div id="blockWarn" class="warn-note hidden" style="margin-top:10px;">
+          יש לתקן או להסיר את כל ההודעות הלא תקינות לפני אישור וקליטת הנתונים לניתוח.
         </div>
 
         <button id="btnConfirmAnalyze" class="btn btn-green btn-block" style="margin-top:10px;" type="button">
-          אשר והצג ניתוח נתונים
+          אשר ונתח נתונים
         </button>
       </div>
     </section>
@@ -698,8 +896,8 @@
         <div class="card">
           <div class="card-head">
             <div>
-              <h3 class="card-title">מגמת כשירות שבועית</h3>
-              <div class="sub">איחוד זמני השבתה (תקלות מקבילות אינן נספרות פעמיים)</div>
+              <h3 class="card-title">מגמת כשירות שבועית (8 שבועות אחרונים)</h3>
+              <div class="sub">שבועות דיווח (רביעי 08:00 – רביעי 08:00) · איחוד זמני השבתה</div>
             </div>
           </div>
           <div id="trendChart" class="chart-wrap"></div>
@@ -718,6 +916,16 @@
           <div class="card-head">
             <h3 class="card-title">היסטוריית תקלות</h3>
             <span id="historyBadge" class="badge badge-neutral">0 תקלות</span>
+          </div>
+          <div class="filter-row">
+            <select id="histCompFilter" aria-label="סנן לפי רכיב">
+              <option value="all">כל הרכיבים</option>
+            </select>
+            <select id="histStatusFilter" aria-label="סנן לפי סטטוס">
+              <option value="all">כל הסטטוסים (הכל)</option>
+              <option value="open">פתוחות</option>
+              <option value="closed">סגורות</option>
+            </select>
           </div>
           <div id="historyList"></div>
         </div>
@@ -741,6 +949,75 @@
     </div>
   </div>
 
+  <!-- Formats Info Modal -->
+  <div id="infoModal" class="modal-bg" role="dialog" aria-modal="true" aria-labelledby="infoModalTitle">
+    <div class="modal modal-lg">
+      <div class="modal-head">
+        <h3 id="infoModalTitle">פורמטים לשליחת דיווחי תקלות ב-WhatsApp</h3>
+        <button id="btnCloseInfoX" class="modal-close" type="button" aria-label="סגור">×</button>
+      </div>
+
+      <div class="info-section">
+        <div class="info-section-title">1. שני פורמטי הדיווח הנתמכים</div>
+        <div class="format-card">
+          <div class="format-top">
+            <span class="format-pattern">פתיחה | רכיב | קוד תקלה</span>
+            <button class="btn-copy-xs" type="button" data-copy-template="פתיחה | עגורן 1 | 14">העתק דוגמה</button>
+          </div>
+          <div class="format-example">פתיחה | עגורן 1 | 14</div>
+        </div>
+        <div class="format-card">
+          <div class="format-top">
+            <span class="format-pattern">סגירה | רכיב | קוד תקלה</span>
+            <button class="btn-copy-xs" type="button" data-copy-template="סגירה | עגורן 1 | 14">העתק דוגמה</button>
+          </div>
+          <div class="format-example">סגירה | עגורן 1 | 14</div>
+        </div>
+        <div class="info-tip">
+          הודעות צ'אט רגילות בקבוצה (שאינן מתחילות ב'פתיחה'/'סגירה' ואינן מכילות '|') מסוננות אוטומטית ואינן גורמות לשגיאה.
+        </div>
+      </div>
+
+      <div class="info-section">
+        <div class="info-section-title">2. רכיבים תקינים (5 רכיבים)</div>
+        <div class="comp-pills">
+          <span class="comp-pill">עגורן 1</span>
+          <span class="comp-pill">עגורן 2</span>
+          <span class="comp-pill">מסועים</span>
+          <span class="comp-pill">SAP</span>
+          <span class="comp-pill">תקשורת</span>
+        </div>
+      </div>
+
+      <div class="info-section">
+        <div class="info-section-title">3. קודי תקלה</div>
+        <div style="font-size:13px; color:var(--text-2);">
+          מספר שלם בלבד בטווח <strong>0 עד 60</strong> (אותו מילון משותף לכל חמשת הרכיבים).
+        </div>
+      </div>
+
+      <div class="info-section">
+        <div class="info-section-title">4. פורמט חותמות זמן מ-WhatsApp</div>
+        <ul class="info-list">
+          <li><strong>Android:</strong> <code dir="ltr">DD/MM/YYYY, HH:MM - שם: הודעה</code> או <code dir="ltr">DD.MM.YYYY, HH:MM - שם: הודעה</code></li>
+          <li><strong>iOS:</strong> <code dir="ltr">[DD/MM/YYYY, HH:MM:SS] שם: הודעה</code> או <code dir="ltr">[DD.MM.YYYY, HH:MM] שם: הודעה</code></li>
+        </ul>
+      </div>
+
+      <div class="info-section" style="margin-bottom:16px;">
+        <div class="info-section-title">5. כללי תקינות</div>
+        <ul class="info-list">
+          <li>לא ניתן לפתוח תקלה שכבר פתוחה (אותו רכיב ואותו קוד תקלה).</li>
+          <li>לא ניתן לסגור תקלה שאינה פתוחה כרגע (או בזמן מוקדם מזמן הפתיחה).</li>
+          <li>קוד התקלה חייב להיות מספר שלם בין 0 ל-60, והרכיב אחד מ-5 הרכיבים המוגדרים.</li>
+          <li>נדרשת חותמת זמן תקינה לכל דיווח תקלה.</li>
+        </ul>
+      </div>
+
+      <button id="btnCloseInfoOk" class="btn btn-primary btn-block" type="button">הבנתי</button>
+    </div>
+  </div>
+
   <script>
     (function () {
       'use strict';
@@ -748,9 +1025,9 @@
       /* ===================================================================
          CONSTANTS & STATE
          =================================================================== */
-      const STORAGE_KEY = 'fault_mvp_events_v1';
+      const STORAGE_KEY = 'fault_mvp_events_v2';
       const COMPONENTS = ['עגורן 1', 'עגורן 2', 'מסועים', 'SAP', 'תקשורת'];
-      const EVENT_TYPES = ['פתיחה', 'סגירה', 'עדכון'];
+      const EVENT_TYPES = ['פתיחה', 'סגירה'];
       const MS_HOUR = 3600 * 1000;
       const MS_DAY = 24 * MS_HOUR;
 
@@ -760,7 +1037,9 @@
         instances: [],        // built from confirmedEvents
         selectedWeekStart: null,
         selectedMonthKey: null,
-        selectedYear: null
+        selectedYear: null,
+        histComp: 'all',
+        histStatus: 'all'
       };
 
       /* ===================================================================
@@ -811,6 +1090,22 @@
         toastTimer = setTimeout(() => { el.style.display = 'none'; }, 2800);
       }
 
+      function copyText(text) {
+        try {
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          ta.style.position = 'fixed';
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+          showToast(`הועתק: ${text}`);
+        } catch (e) {
+          showToast('לא ניתן היה להעתיק אוטומטית');
+        }
+      }
+
       /* ===================================================================
          PERSISTENCE (localStorage)
          =================================================================== */
@@ -851,6 +1146,19 @@
         );
       }
 
+      /**
+       * Checks whether a message body looks like a fault report
+       * (starts with 'פתיחה' / 'סגירה' or contains '|').
+       */
+      function looksLikeReport(text) {
+        const t = cleanMarks(text);
+        return t.startsWith('פתיחה') || t.startsWith('סגירה') || t.includes('|');
+      }
+
+      function eventSignature(ev) {
+        return `${ev.timestamp}||${ev.type}|${ev.component}|${ev.code}`;
+      }
+
       function parseWaDateTime(dateStr, timeStr) {
         const dParts = dateStr.split(/[./-]/).map(Number);
         if (dParts.length !== 3 || dParts.some(isNaN)) return null;
@@ -878,7 +1186,7 @@
       function parseSingleLine(rawLine) {
         const cleaned = cleanMarks(rawLine);
         if (isSystemLine(cleaned)) {
-          return { status: 'system', reason: 'הודעת מערכת של WhatsApp', parsed: null };
+          return { status: 'ignored', reason: 'הודעת מערכת של WhatsApp', parsed: null };
         }
 
         const iosRe = /^\[(\d{1,2}[./-]\d{1,2}[./-]\d{2,4}),?\s+(\d{1,2}:\d{2}(?::\d{2})?(?:\s*[APap][Mm])?)\]\s*([^:]+):\s*(.*)$/;
@@ -886,23 +1194,34 @@
         const m = cleaned.match(iosRe) || cleaned.match(andRe);
 
         if (!m) {
+          // If a non-timestamped line does not look like a report, silently ignore as regular chat
+          if (!looksLikeReport(cleaned)) {
+            return { status: 'ignored', reason: 'הודעת צ\'אט רגילה', parsed: null };
+          }
           return { status: 'invalid', reason: 'חסרה חותמת זמן תקינה של WhatsApp או פורמט שורה לא מזוהה', parsed: null };
         }
 
         const [, dateStr, timeStr, sender, body] = m;
+        const cleanBody = cleanMarks(body);
+
+        // Regular chat messages (not starting with פתיחה/סגירה and not containing '|') are silently ignored
+        if (!looksLikeReport(cleanBody)) {
+          return { status: 'ignored', reason: 'הודעת צ\'אט רגילה', parsed: null };
+        }
+
         const ts = parseWaDateTime(dateStr, timeStr);
         if (ts === null) {
           return { status: 'invalid', reason: `חותמת זמן לא תקינה (${dateStr} ${timeStr})`, parsed: null };
         }
 
-        const parts = body.split('|').map(p => p.trim());
-        if (parts.length < 3) {
-          return { status: 'invalid', reason: 'פורמט שגוי (נדרש: סוג | רכיב | קוד תקלה)', parsed: null };
+        const parts = cleanBody.split('|').map(p => p.trim());
+        if (parts.length !== 3) {
+          return { status: 'invalid', reason: 'פורמט שגוי (נדרש בדיוק: פתיחה/סגירה | רכיב | קוד תקלה)', parsed: null };
         }
 
-        const [type, comp, codeStr, ...rest] = parts;
+        const [type, comp, codeStr] = parts;
         if (!EVENT_TYPES.includes(type)) {
-          return { status: 'invalid', reason: `סוג הודעה לא מוכר ("${type}"). מותר: פתיחה / סגירה / עדכון`, parsed: null };
+          return { status: 'invalid', reason: `סוג הודעה לא מוכר ("${type}"). מותר: פתיחה או סגירה בלבד`, parsed: null };
         }
         if (!COMPONENTS.includes(comp)) {
           return { status: 'invalid', reason: `רכיב לא מוכר ("${comp}"). מותר: ${COMPONENTS.join(', ')}`, parsed: null };
@@ -915,11 +1234,6 @@
           return { status: 'invalid', reason: `קוד תקלה ${code} מחוץ לטווח המותר (0–60)`, parsed: null };
         }
 
-        const updateText = rest.join(' | ').trim();
-        if (type === 'עדכון' && !updateText) {
-          return { status: 'invalid', reason: 'הודעת עדכון חייבת לכלול טקסט לאחר קוד התקלה', parsed: null };
-        }
-
         return {
           status: 'candidate',
           reason: '',
@@ -929,18 +1243,19 @@
             type,
             component: comp,
             code,
-            updateText: type === 'עדכון' ? updateText : '',
             rawLine: cleaned
           }
         };
       }
 
       /**
-       * Parses and runs chronological & logical validation on state.batchLines.
+       * Parses and runs chronological & logical validation on state.batchLines
+       * together with already-persisted events in localStorage.
        */
       function validateBatch() {
+        const storedSigs = new Set(state.confirmedEvents.map(eventSignature));
+        const seenBatch = new Set();
         const candidates = [];
-        const seenExact = new Set();
 
         state.batchLines.forEach((item, idx) => {
           const res = parseSingleLine(item.rawLine);
@@ -949,53 +1264,62 @@
           item.parsed = res.parsed;
 
           if (res.status === 'candidate') {
-            const sig = `${res.parsed.timestamp}||${res.parsed.type}|${res.parsed.component}|${res.parsed.code}|${res.parsed.updateText}`;
-            if (seenExact.has(sig)) {
+            const sig = eventSignature(res.parsed);
+            if (storedSigs.has(sig)) {
+              item.status = 'duplicate';
+              item.reason = 'כפילות: הודעה זו כבר שמורה במערכת';
+            } else if (seenBatch.has(sig)) {
               item.status = 'invalid';
-              item.reason = 'הודעה כפולה זהה באותו זמן';
+              item.reason = 'הודעה כפולה זהה באותו זמן בתוך הקלט';
             } else {
-              seenExact.add(sig);
+              seenBatch.add(sig);
               candidates.push({ item, order: idx });
             }
           }
         });
 
-        // Sort chronologically for stateful validation
-        candidates.sort((a, b) => a.item.parsed.timestamp - b.item.parsed.timestamp || a.order - b.order);
+        // Merge persisted events and new candidates chronologically for stateful validation
+        const timeline = [
+          ...state.confirmedEvents.map((ev, idx) => ({ isExisting: true, parsed: ev, order: -100000 + idx })),
+          ...candidates.map(c => ({ isExisting: false, item: c.item, parsed: c.item.parsed, order: c.order }))
+        ];
+        timeline.sort((a, b) => a.parsed.timestamp - b.parsed.timestamp || a.order - b.order);
 
         const openMap = new Map(); // `${component}::${code}` -> opened_at
-        for (const { item } of candidates) {
-          const p = item.parsed;
+        for (const entry of timeline) {
+          const p = entry.parsed;
           const key = `${p.component}::${p.code}`;
 
           if (p.type === 'פתיחה') {
             if (openMap.has(key)) {
-              item.status = 'invalid';
-              item.reason = `פתיחה כפולה: תקלה ${p.code} ב-${p.component} כבר פתוחה`;
+              if (!entry.isExisting) {
+                entry.item.status = 'invalid';
+                entry.item.reason = `פתיחה כפולה: תקלה ${p.code} ב-${p.component} כבר פתוחה`;
+              }
             } else {
               openMap.set(key, p.timestamp);
-              item.status = 'valid';
-              item.reason = '';
+              if (!entry.isExisting) {
+                entry.item.status = 'valid';
+                entry.item.reason = '';
+              }
             }
           } else if (p.type === 'סגירה') {
             if (!openMap.has(key)) {
-              item.status = 'invalid';
-              item.reason = `סגירה לתקלה שאינה פתוחה (${p.component}, קוד ${p.code})`;
+              if (!entry.isExisting) {
+                entry.item.status = 'invalid';
+                entry.item.reason = `סגירה לתקלה שאינה פתוחה (${p.component}, קוד ${p.code})`;
+              }
             } else if (p.timestamp < openMap.get(key)) {
-              item.status = 'invalid';
-              item.reason = 'זמן הסגירה מוקדם מזמן פתיחת התקלה';
+              if (!entry.isExisting) {
+                entry.item.status = 'invalid';
+                entry.item.reason = 'זמן הסגירה מוקדם מזמן פתיחת התקלה';
+              }
             } else {
               openMap.delete(key);
-              item.status = 'valid';
-              item.reason = '';
-            }
-          } else if (p.type === 'עדכון') {
-            if (!openMap.has(key)) {
-              item.status = 'invalid';
-              item.reason = `עדכון לתקלה שאינה פתוחה (${p.component}, קוד ${p.code})`;
-            } else {
-              item.status = 'valid';
-              item.reason = '';
+              if (!entry.isExisting) {
+                entry.item.status = 'valid';
+                entry.item.reason = '';
+              }
             }
           }
         }
@@ -1018,15 +1342,11 @@
                 code: ev.code,
                 openedAt: ev.timestamp,
                 closedAt: null,
-                status: 'open',
-                updates: []
+                status: 'open'
               };
               openMap.set(key, inst);
               instances.push(inst);
             }
-          } else if (ev.type === 'עדכון') {
-            const inst = openMap.get(key);
-            if (inst) inst.updates.push({ timestamp: ev.timestamp, text: ev.updateText });
           } else if (ev.type === 'סגירה') {
             const inst = openMap.get(key);
             if (inst && ev.timestamp >= inst.openedAt) {
@@ -1165,37 +1485,44 @@
           return `[${ds}, ${tm}] ${sender}: ${msg}`;
         };
 
-        // Previous week: overlapping faults (עגורן 1 08:00-11:00 + מסועים 09:00-14:00 -> 6h merged)
+        // 3 weeks ago
+        const w3 = curWed - 18 * MS_DAY;
+        // 2 weeks ago
+        const w2 = curWed - 11 * MS_DAY;
+        // Previous week: overlapping faults (עגורן 1 08:00-11:00 + מסועים 09:00-14:00 -> 6h merged, NOT 7h)
         const prevFri = curWed - 5 * MS_DAY; // Friday 08:00
         // Crossing Wednesday 08:00 boundary: 06:00 -> 11:00 (2h prev week, 3h current week)
         const crossOpen = curWed - 2 * MS_HOUR;
-        const crossUpd = curWed - 30 * 60000;
         const crossClose = curWed + 3 * MS_HOUR;
 
-        // Current open fault (2 hours ago, guaranteed after curWed if possible)
+        // Current open fault (2 hours ago)
         const openTs = Math.max(curWed + 3.5 * MS_HOUR, now - 2 * MS_HOUR);
-        const openUpdTs = Math.min(now - 5 * 60000, openTs + 35 * 60000);
 
         return [
+          line(w3, 'דני', 'בוקר טוב לכולם'),
+          line(w3 + 1 * MS_HOUR, 'דני', 'פתיחה | SAP | 12'),
+          line(w3 + 3.5 * MS_HOUR, 'דני', 'סגירה | SAP | 12'),
+          line(w2, 'יוסי', 'פתיחה | עגורן 2 | 21'),
+          line(w2 + 2 * MS_HOUR, 'יוסי', 'סגירה | עגורן 2 | 21'),
+          line(prevFri - 15 * 60000, 'דני', 'בוקר טוב, מתחילים משמרת'),
           line(prevFri, 'דני', 'פתיחה | עגורן 1 | 14'),
           line(prevFri + 1 * MS_HOUR, 'יוסי', 'פתיחה | מסועים | 7'),
-          line(prevFri + 1.5 * MS_HOUR, 'דני', 'עדכון | עגורן 1 | 14 | טכנאי בדרך לבדיקת חיישן'),
+          line(prevFri + 1.5 * MS_HOUR, 'דני', 'טכנאי בדרך לעגורן 1'),
           line(prevFri + 3 * MS_HOUR, 'דני', 'סגירה | עגורן 1 | 14'),
           line(prevFri + 6 * MS_HOUR, 'יוסי', 'סגירה | מסועים | 7'),
+          line(prevFri + 6.2 * MS_HOUR, 'מנהל', 'תודה על העדכון'),
           // Recurring fault on עגורן 1 code 14
           line(curWed - 2 * MS_DAY + 2 * MS_HOUR, 'דני', 'פתיחה | עגורן 1 | 14'),
           line(curWed - 2 * MS_DAY + 4.5 * MS_HOUR, 'דני', 'סגירה | עגורן 1 | 14'),
           // Cross-boundary fault (Wednesday 08:00)
           line(crossOpen, 'רון', 'פתיחה | תקשורת | 5'),
-          line(crossUpd, 'רון', 'עדכון | תקשורת | 5 | אתחול מתג ראשי'),
           line(crossClose, 'רון', 'סגירה | תקשורת | 5'),
-          // Open fault
+          // Currently open fault
           line(openTs, 'דני', 'פתיחה | עגורן 1 | 14'),
-          line(openUpdTs, 'דני', 'עדכון | עגורן 1 | 14 | ממתינים לחלק חילוף'),
-          // 3 Invalid messages for testing inline edit / remove
+          // 3 Invalid report lines for testing inline edit / remove
           line(prevFri + 7 * MS_HOUR, 'אבי', 'פתיחה | עגורן 2 | 99'),
           line(prevFri + 7.5 * MS_HOUR, 'אבי', 'סגירה | SAP | 12'),
-          line(curWed + 4 * MS_HOUR, 'משה', 'פתיחה | מעלית 3 | 10')
+          line(curWed + 4 * MS_HOUR, 'משה', 'פתיח | SAP | 12')
         ].join('\n');
       }
 
@@ -1212,12 +1539,15 @@
 
         const valid = state.batchLines.filter(x => x.status === 'valid');
         const invalid = state.batchLines.filter(x => x.status === 'invalid');
-        const sys = state.batchLines.filter(x => x.status === 'system');
+        const ignored = state.batchLines.filter(x => x.status === 'ignored');
+        const dups = state.batchLines.filter(x => x.status === 'duplicate');
 
-        $('badgeValid').textContent = `${valid.length} תקינות`;
-        $('badgeInvalid').textContent = `${invalid.length} בעייתיות`;
-        $('badgeSystem').textContent = `${sys.length} הודעות מערכת`;
-        $('badgeSystem').classList.toggle('hidden', sys.length === 0);
+        $('badgeValid').textContent = `${valid.length} תקינות לקליטה`;
+        $('badgeInvalid').textContent = `${invalid.length} הודעות לא תקינות`;
+        $('badgeIgnored').textContent = `${ignored.length} הודעות צ'אט שהושמטו`;
+        $('badgeIgnored').classList.toggle('hidden', ignored.length === 0);
+        $('badgeDup').textContent = `${dups.length} כפילויות`;
+        $('badgeDup').classList.toggle('hidden', dups.length === 0);
 
         // Invalid section
         const invSec = $('invalidSection');
@@ -1296,18 +1626,21 @@
               const p = item.parsed;
               return `
                 <div class="valid-row">
-                  <span><strong>${esc(p.type)}</strong> | ${esc(p.component)} | קוד ${p.code}${p.updateText ? ` · "${esc(p.updateText)}"` : ''}</span>
+                  <span><strong>${esc(p.type)}</strong> | ${esc(p.component)} | קוד ${p.code}</span>
                   <span class="sub">${fmtDateTime(p.timestamp)}</span>
                 </div>
               `;
             }).join('')
-          : '<div class="sub" style="padding:6px 0;">אין הודעות תקינות עדיין.</div>';
+          : '<div class="sub" style="padding:6px 0;">אין הודעות תקינות חדשות לקליטה.</div>';
 
-        $('excludeWarn').classList.toggle('hidden', invalid.length === 0 || valid.length === 0);
-        $('btnConfirmAnalyze').disabled = valid.length === 0;
-        $('btnConfirmAnalyze').textContent = valid.length > 0
-          ? `אשר והצג ניתוח נתונים (${valid.length} הודעות תקינות)`
-          : 'אין הודעות תקינות לניתוח';
+        const hasUnresolvedErrors = invalid.length > 0;
+        $('blockWarn').classList.toggle('hidden', !hasUnresolvedErrors);
+        $('btnConfirmAnalyze').disabled = hasUnresolvedErrors || valid.length === 0;
+        $('btnConfirmAnalyze').textContent = hasUnresolvedErrors
+          ? `יש ${invalid.length} הודעות לא תקינות לטיפול לפני האישור`
+          : (valid.length > 0
+              ? `אשר ונתח נתונים (${valid.length} הודעות תקינות)`
+              : 'אין הודעות תקינות לקליטה');
       }
 
       /* ===================================================================
@@ -1363,22 +1696,18 @@
         $('openFaultsCard').classList.toggle('hidden', !isDown);
         if (isDown) {
           $('openCountBadge').textContent = `${openFaults.length} פתוחות`;
-          $('openFaultsList').innerHTML = openFaults.map(inst => {
-            const lastUpd = inst.updates.length ? inst.updates[inst.updates.length - 1] : null;
-            return `
-              <div class="fault-card is-open">
-                <div class="fault-head">
-                  <div class="fault-name">${esc(inst.component)} · קוד תקלה ${inst.code}</div>
-                  <span class="badge badge-err">פתוחה</span>
-                </div>
-                <div class="fault-meta">
-                  <span>פתיחה: ${fmtDateTime(inst.openedAt)}</span>
-                  <span>משך פתוח: <strong>${fmtDuration(now - inst.openedAt)}</strong></span>
-                </div>
-                ${lastUpd ? `<div class="update-note"><strong>עדכון אחרון (${fmtDateTime(lastUpd.timestamp)}):</strong> ${esc(lastUpd.text)}</div>` : ''}
+          $('openFaultsList').innerHTML = openFaults.map(inst => `
+            <div class="fault-card is-open">
+              <div class="fault-head">
+                <div class="fault-name">${esc(inst.component)} · קוד תקלה ${inst.code}</div>
+                <span class="badge badge-err">פתוחה</span>
               </div>
-            `;
-          }).join('');
+              <div class="fault-meta">
+                <span>פתיחה: ${fmtDateTime(inst.openedAt)}</span>
+                <span>משך פתוח: <strong>${fmtDuration(now - inst.openedAt)}</strong></span>
+              </div>
+            </div>
+          `).join('');
         }
 
         // 2. Period Selectors & Cards
@@ -1394,7 +1723,7 @@
 
         const wm = computePeriodMetrics(state.instances, state.selectedWeekStart, state.selectedWeekStart + 7 * MS_DAY);
         $('weekSub').textContent = wm.isCurrent
-          ? `שבוע נוכחי עד עכשיו (${wm.totalHours.toFixed(1)} שע' שחלפו)`
+          ? `השבוע הנוכחי (מרביעי 08:00 עד עכשיו · ${wm.totalHours.toFixed(1)} שע')`
           : `שבוע דיווח מלא (168 שעות)`;
         $('weekKpis').innerHTML = renderKpiHtml(wm);
 
@@ -1435,8 +1764,8 @@
           : `שנה מלאה (${yMetrics.totalHours.toFixed(0)} שעות)`;
         $('yearKpis').innerHTML = renderKpiHtml(yMetrics);
 
-        // Weekly Trend SVG Chart
-        renderTrendChart(weeks);
+        // Weekly Trend SVG Chart (last 8 reporting weeks)
+        renderTrendChart();
 
         // 3. Component & Recurring Faults Breakdown
         $('compGrid').innerHTML = COMPONENTS.map(comp => {
@@ -1460,44 +1789,53 @@
               </div>
               <div class="code-chips">
                 ${topCodes.length
-                  ? topCodes.map(([code, cnt]) => `<span class="chip">קוד ${code} (${cnt} ${cnt === 1 ? 'פעם' : 'פעמים'})</span>`).join('')
-                  : '<span class="sub">ללא תקלות</span>'}
+                  ? topCodes.map(([code, cnt]) => `<span class="chip">קוד ${code}: ${cnt}×</span>`).join('')
+                  : '<span class="sub">אין תקלות רשומות</span>'}
               </div>
             </div>
           `;
         }).join('');
 
-        // 4. History List
-        const sortedInst = [...state.instances].sort((a, b) => b.openedAt - a.openedAt);
-        $('historyBadge').textContent = `${sortedInst.length} תקלות`;
-        $('historyList').innerHTML = sortedInst.map(inst => {
-          const isOpen = inst.status === 'open';
-          const dur = (isOpen ? now : inst.closedAt) - inst.openedAt;
-          return `
-            <div class="fault-card ${isOpen ? 'is-open' : ''}">
-              <div class="fault-head">
-                <div class="fault-name">${esc(inst.component)} · קוד תקלה ${inst.code}</div>
-                <span class="badge ${isOpen ? 'badge-err' : 'badge-ok'}">${isOpen ? 'פתוחה' : 'סגורה'}</span>
-              </div>
-              <div class="fault-meta">
-                <span>פתיחה: ${fmtDateTime(inst.openedAt)}</span>
-                <span>סגירה: ${isOpen ? 'פתוחה' : fmtDateTime(inst.closedAt)}</span>
-                <span>משך: <strong>${fmtDuration(dur)}</strong></span>
-              </div>
-              ${inst.updates.length ? `
-                <details style="margin-top:6px;">
-                  <summary class="sub" style="cursor:pointer; font-weight:700;">עדכונים (${inst.updates.length})</summary>
-                  ${inst.updates.map(u => `<div class="update-note"><strong>${fmtDateTime(u.timestamp)}:</strong> ${esc(u.text)}</div>`).join('')}
-                </details>
-              ` : ''}
-            </div>
-          `;
-        }).join('');
+        // 4. History List (with Component & Status filters)
+        renderHistoryList();
       }
 
-      function renderTrendChart(weeks) {
-        const displayWeeks = weeks.slice(-8); // up to 8 most recent weeks in data
-        const data = displayWeeks.map(ws => {
+      function renderHistoryList() {
+        const now = Date.now();
+        const filtered = state.instances
+          .filter(i => state.histComp === 'all' || i.component === state.histComp)
+          .filter(i => state.histStatus === 'all' || i.status === state.histStatus)
+          .sort((a, b) => b.openedAt - a.openedAt);
+
+        $('historyBadge').textContent = `${filtered.length} תקלות`;
+        $('historyList').innerHTML = filtered.length
+          ? filtered.map(inst => {
+              const isOpen = inst.status === 'open';
+              const dur = (isOpen ? now : inst.closedAt) - inst.openedAt;
+              return `
+                <div class="fault-card ${isOpen ? 'is-open' : ''}">
+                  <div class="fault-head">
+                    <div class="fault-name">${esc(inst.component)} · קוד תקלה ${inst.code}</div>
+                    <span class="badge ${isOpen ? 'badge-err' : 'badge-ok'}">${isOpen ? 'פתוחה' : 'סגורה'}</span>
+                  </div>
+                  <div class="fault-meta">
+                    <span>פתיחה: ${fmtDateTime(inst.openedAt)}</span>
+                    <span>סגירה: ${isOpen ? 'פתוחה' : fmtDateTime(inst.closedAt)}</span>
+                    <span>משך: <strong>${fmtDuration(dur)}</strong></span>
+                  </div>
+                </div>
+              `;
+            }).join('')
+          : '<div class="sub" style="padding:10px 0; text-align:center;">אין תקלות התואמות לסינון שנבחר.</div>';
+      }
+
+      function renderTrendChart() {
+        const curWed = getWeekStartForTs(Date.now());
+        const last8Weeks = [];
+        for (let i = 7; i >= 0; i--) {
+          last8Weeks.push(curWed - i * 7 * MS_DAY);
+        }
+        const data = last8Weeks.map(ws => {
           const m = computePeriodMetrics(state.instances, ws, ws + 7 * MS_DAY);
           return { label: fmtShortDate(ws), pct: m.availPct, down: fmtDuration(m.downtimeMs) };
         });
@@ -1578,6 +1916,17 @@
       }
 
       function initEvents() {
+        // Populate component filter options
+        const histCompEl = $('histCompFilter');
+        COMPONENTS.forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c;
+          opt.textContent = c;
+          histCompEl.appendChild(opt);
+        });
+        histCompEl.onchange = (e) => { state.histComp = e.target.value; renderHistoryList(); };
+        $('histStatusFilter').onchange = (e) => { state.histStatus = e.target.value; renderHistoryList(); };
+
         document.querySelectorAll('.tab-btn').forEach(btn => {
           btn.onclick = () => switchView(btn.dataset.view);
         });
@@ -1587,7 +1936,7 @@
         $('btnSample').onclick = () => {
           $('rawInput').value = generateSampleChat();
           runParseFromTextarea();
-          showToast('נטענה דוגמה הכוללת תקלות חופפות ו-3 הודעות בעייתיות');
+          showToast('נטענה דוגמה הכוללת הודעות צ\'אט רגילות ו-3 שורות שגויות');
         };
 
         $('fileInput').onchange = (e) => {
@@ -1611,20 +1960,35 @@
           renderValidation();
         };
 
+        $('btnRemoveAllInvalid').onclick = () => {
+          const count = state.batchLines.filter(x => x.status === 'invalid').length;
+          state.batchLines = state.batchLines.filter(x => x.status !== 'invalid');
+          validateBatch();
+          renderValidation();
+          showToast(`הוסרו ${count} הודעות לא תקינות`);
+        };
+
         $('btnConfirmAnalyze').onclick = () => {
+          const hasInvalid = state.batchLines.some(x => x.status === 'invalid');
+          if (hasInvalid) return;
+
           const validEvents = state.batchLines
             .filter(x => x.status === 'valid' && x.parsed)
             .map(x => x.parsed);
           if (!validEvents.length) return;
 
-          state.confirmedEvents = validEvents;
-          state.instances = buildInstances(validEvents);
+          state.confirmedEvents = [...state.confirmedEvents, ...validEvents]
+            .sort((a, b) => a.timestamp - b.timestamp);
+          state.instances = buildInstances(state.confirmedEvents);
+          state.batchLines = [];
+          $('rawInput').value = '';
+          renderValidation();
           state.selectedWeekStart = null;
           state.selectedMonthKey = null;
           state.selectedYear = null;
           savePersisted();
           switchView('analysis');
-          showToast(`אושרו ${validEvents.length} הודעות תקינות לניתוח`);
+          showToast(`נקלטו ${validEvents.length} הודעות תקינות לניתוח`);
         };
 
         // Period selectors
@@ -1635,6 +1999,9 @@
         // Reset modal
         $('btnReset').onclick = () => $('resetModal').classList.add('open');
         $('btnCancelReset').onclick = () => $('resetModal').classList.remove('open');
+        $('resetModal').onclick = (e) => {
+          if (e.target === $('resetModal')) $('resetModal').classList.remove('open');
+        };
         $('btnDoReset').onclick = () => {
           localStorage.removeItem(STORAGE_KEY);
           state.batchLines = [];
@@ -1647,6 +2014,26 @@
           switchView('import');
           showToast('כל הנתונים אופסו');
         };
+
+        // Info modal (message formats guide)
+        const openInfo = () => $('infoModal').classList.add('open');
+        const closeInfo = () => $('infoModal').classList.remove('open');
+        $('btnInfoHeader').onclick = openInfo;
+        $('btnInfoImport').onclick = openInfo;
+        $('btnCloseInfoX').onclick = closeInfo;
+        $('btnCloseInfoOk').onclick = closeInfo;
+        $('infoModal').onclick = (e) => {
+          if (e.target === $('infoModal')) closeInfo();
+        };
+        document.querySelectorAll('[data-copy-template]').forEach(btn => {
+          btn.onclick = () => copyText(btn.dataset.copyTemplate);
+        });
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') {
+            closeInfo();
+            $('resetModal').classList.remove('open');
+          }
+        });
       }
 
       /* ===================================================================
